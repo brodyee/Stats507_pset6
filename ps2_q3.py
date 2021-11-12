@@ -12,11 +12,11 @@ from IPython.core.display import display, HTML
 
 root = "data/"
 
-cols = ["SEQN", "RIDAGEYR", "RIDRETH3", 
+cols = ["SEQN", "RIDAGEYR", "RIDRETH3", "RIAGENDR",
         "DMDEDUC2", "DMDMARTL", "RIDSTATR", 
         "SDMVPSU", "SDMVSTRA", "WTMEC2YR", 
         "WTINT2YR"]
-demo11to18 = pd.concat([pd.read_sas(
+demo_11_to_18 = pd.concat([pd.read_sas(
                         root + "DEMO_G.XPT")[cols].assign(cohort="11-12"),
                         pd.read_sas(
                         root + "DEMO_H.XPT")[cols].assign(cohort="13-14"), 
@@ -27,7 +27,7 @@ demo11to18 = pd.concat([pd.read_sas(
 
 # changing the column names
 
-newColNames = {"SEQN" : "id", "RIDAGEYR" : "age",
+newColNames = {"SEQN" : "id", "RIDAGEYR" : "age", "RIAGENDR" : "gender",
                "RIDRETH3" : "race_ethn", "DMDEDUC2" : "education", 
                "DMDMARTL" : "marital_status", 
                "RIDSTATR" : "exam_status", 
@@ -35,21 +35,28 @@ newColNames = {"SEQN" : "id", "RIDAGEYR" : "age",
                "SDMVSTRA" : "pseudo-stratum_var_est.", 
                "WTMEC2YR" : "mec_exam_weight", 
                "WTINT2YR" : "interview_weight"}
-demo11to18 = demo11to18.rename(newColNames, axis=1)
+demo_11_to_18 = demo_11_to_18.rename(newColNames, axis=1)
 
 # changing data types
 
-demo11to18 = demo11to18.convert_dtypes()
-demo11to18["age"] = demo11to18["age"].astype("int8")
+demo_11_to_18 = demo_11_to_18.convert_dtypes()
+demo_11_to_18["age"] = demo_11_to_18["age"].astype("int8")
 catCols = ["cohort", "race_ethn", 
            "education", "marital_status",
            "exam_status"]
-demo11to18[catCols] = demo11to18[catCols].astype("category")
-demo11to18.dtypes
+demo_11_to_18[catCols] = demo_11_to_18[catCols].astype("category")
+demo_11_to_18.dtypes
 
+# changing gender as I did in pset4
+
+new_gender_cat = {1 : "Male",
+                  2 : "Female"}
+demo_11_to_18["gender"] = (demo_11_to_18["gender"].replace(new_gender_cat)
+                                                  .astype("category"))
+                                                  
 # saving data
 
-demo11to18.to_pickle("demo11to18.pickle")
+demo_11_to_18.to_pickle("demo11to18.pickle")
 
 # ## part b
 
@@ -106,4 +113,4 @@ oralHlthDen11to18.to_pickle("oralHlthDen11to18.pickle")
 
 # ## Part c
 
-numCases = oralHlthDen11to18.shape[0] + demo11to18.shape[0]
+numCases = oralHlthDen11to18.shape[0] + demo_11_to_18.shape[0]
